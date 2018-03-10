@@ -11,7 +11,8 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "API_ENDPOINT", '"https://rest.coinapi.io/v1/"'
-        buildConfigField "String", "API_KEY", '"' + CoinApiKey + '"'
+        buildConfigField "String", "API_KEY", "\""+getCoinApiKey()+"\""
+
     }
     buildTypes {
         release {
@@ -57,4 +58,10 @@ dependencies {
 
     compile 'com.jakewharton.threetenabp:threetenabp:1.0.5'
 
+}
+
+def getCoinApiKey(){
+    Properties props = new Properties()
+    props.load(new FileInputStream(new File('secrets.properties')))
+    return props['COIN_API_KEY']
 }
