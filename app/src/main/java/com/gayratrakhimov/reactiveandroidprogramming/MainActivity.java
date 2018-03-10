@@ -12,6 +12,7 @@ import com.gayratrakhimov.reactiveandroidprogramming.coinapi.CoinApiServiceFacto
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import hu.akarnokd.rxjava.interop.RxJavaInterop;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -80,6 +81,15 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("APP", "New update " + stockUpdate.getStockSymbol());
                     stockDataAdapter.add(stockUpdate);
                 });
+
+        // Convert RxJava 1 Observable to RxJava 2 Observable
+        RxJavaInterop.toV2Observable(rx.Observable.just("One", "Two", "Three"))
+                .doOnNext(i -> log("doOnNext", i))
+                .subscribe(i -> log("subscribe", i));
+
+        RxJavaInterop.toV2Flowable(rx.Observable.just("One", "Two", "Three"))
+                .doOnNext(i -> log("doOnNext", i))
+                .subscribe(i -> log("subscribe", i));
 
     }
 
