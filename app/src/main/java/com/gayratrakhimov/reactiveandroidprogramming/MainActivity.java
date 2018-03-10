@@ -7,8 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.gayratrakhimov.reactiveandroidprogramming.yahoo.RetrofitYahooServiceFactory;
-import com.gayratrakhimov.reactiveandroidprogramming.yahoo.YahooService;
+import com.gayratrakhimov.reactiveandroidprogramming.coinapi.CoinApiService;
+import com.gayratrakhimov.reactiveandroidprogramming.coinapi.CoinApiServiceFactory;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,12 +37,12 @@ public class MainActivity extends AppCompatActivity {
         Observable.just("Hello! Please use this app responsibly!")
                 .subscribe(helloText::setText);
 
-//        recyclerView.setHasFixedSize(true);
-//        layoutManager = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(layoutManager);
-//        stockDataAdapter = new StockDataAdapter();
-//        recyclerView.setAdapter(stockDataAdapter);
-//
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        stockDataAdapter = new StockDataAdapter();
+        recyclerView.setAdapter(stockDataAdapter);
+
 //        Observable.just(
 //                new StockUpdate("GOOGLE", 12.43, new Date()),
 //                new StockUpdate("APPL", 645.1, new Date()),
@@ -52,18 +52,34 @@ public class MainActivity extends AppCompatActivity {
 //            stockDataAdapter.add(stockUpdate);
 //        });
 
-        YahooService yahooService = new RetrofitYahooServiceFactory().create();
+//        Observable.interval(0, 5, TimeUnit.SECONDS)
+//                .flatMap(
+//                        i -> yahooService.yqlQuery(query, env)
+//                                .toObservable()
+//                )
+//                .subscribeOn(Schedulers.io())
+//                .map(r -> r.getQuery().getResults().getQuote())
+//                .flatMap(Observable::fromIterable)
+//                .map(r -> StockUpdate.create(r))
+//                .observeOn(AndroidSchedulers.mainThread()) // OK
+//                .subscribe(stockUpdate -> { // OK
+//                    Log.d("APP", "New update " + stockUpdate.getStockSymbol());
+//                    stockDataAdapter.add(stockUpdate);
+//                });
 
-        String query = "select * from yahoo.finance.quote where symbol in ('YHOO','AAPL','GOOG','MSFT')";
-        String env = "store://datatables.org/alltableswithkeys";
+        CoinApiService coinApiService = new CoinApiServiceFactory().create();
 
-        yahooService.yqlQuery(query, env)
+        coinApiService.getExchangeRates("USD")
+                .toObservable()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> log(
-                        data.getQuery().getResults()
-                                .getQuote().get(0).getSymbol())
-                );
+                .map(r -> r.getRates())
+                .flatMap(Observable::fromIterable)
+                .map(r -> StockUpdate.create(r))
+                .observeOn(AndroidSchedulers.mainThread()) // OK
+                .subscribe(stockUpdate -> { // OK
+                    Log.d("APP", "New update " + stockUpdate.getStockSymbol());
+                    stockDataAdapter.add(stockUpdate);
+                });
 
     }
 
