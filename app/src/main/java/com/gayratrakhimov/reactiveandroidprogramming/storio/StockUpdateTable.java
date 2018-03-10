@@ -18,7 +18,7 @@ public class StockUpdateTable {
         return "CREATE TABLE " + TABLE + "("
                 + Columns.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + Columns.STOCK_SYMBOL + " TEXT NOT NULL, "
-                + Columns.DATE + " LONG NOT NULL, "
+                + Columns.DATE + " TEXT NOT NULL, "
                 + Columns.PRICE + " LONG NOT NULL"
                 + ");";
     }

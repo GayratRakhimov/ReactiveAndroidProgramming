@@ -5,16 +5,18 @@ import com.gayratrakhimov.reactiveandroidprogramming.coinapi.json.Rate;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+
 public class StockUpdate implements Serializable {
 
     private final String stockSymbol;
     private final BigDecimal price;
-    private final String date;
+    private final String time;
+    private Integer id;
 
-    public StockUpdate(String stockSymbol, BigDecimal price, String date) {
+    public StockUpdate(String stockSymbol, BigDecimal price, String time) {
         this.stockSymbol = stockSymbol;
         this.price = price;
-        this.date = date;
+        this.time = time;
     }
 
     public String getStockSymbol() {
@@ -25,8 +27,8 @@ public class StockUpdate implements Serializable {
         return price;
     }
 
-    public String getDate() {
-        return date;
+    public String getTime() {
+        return time;
     }
 
     public static StockUpdate create(Rate rate) {
@@ -34,6 +36,14 @@ public class StockUpdate implements Serializable {
                 rate.getAssetIdQuote(),
                 new BigDecimal(1 / rate.getRate()),
                 rate.getTime());
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
 }
