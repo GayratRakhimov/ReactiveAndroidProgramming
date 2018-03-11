@@ -69,8 +69,10 @@ dependencies {
     compile 'com.pushtorefresh.storio:sqlite-annotations:1.12.1'
     annotationProcessor 'com.pushtorefresh.storio:sqlite-annotations-processor:1.12.1'
 
-    //
-    compile 'com.jakewharton.threetenabp:threetenabp:1.0.5'
+    // RxLifecycle
+    compile 'com.trello.rxlifecycle2:rxlifecycle:2.0.1'
+    compile 'com.trello.rxlifecycle2:rxlifecycle-android:2.0.1'
+    compile 'com.trello.rxlifecycle2:rxlifecycle-components:2.0.1'
 
 }
 

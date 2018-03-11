@@ -1,7 +1,6 @@
 package com.gayratrakhimov.reactiveandroidprogramming;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +14,7 @@ import com.gayratrakhimov.reactiveandroidprogramming.coinapi.json.ExchangeRatesR
 import com.gayratrakhimov.reactiveandroidprogramming.storio.StockUpdateTable;
 import com.gayratrakhimov.reactiveandroidprogramming.storio.StorIOFactory;
 import com.pushtorefresh.storio.sqlite.queries.Query;
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,7 +24,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static hu.akarnokd.rxjava.interop.RxJavaInterop.toV2Observable;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends RxAppCompatActivity {
 
     @BindView(R.id.hello_world_salute)
     TextView helloText;
@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
 //                .subscribe(item -> log("subscribe", item), ErrorHandler.get());
 
         coinApiService.getExchangeRates("USD")
+                .compose(bindToLifecycle())
                 .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
