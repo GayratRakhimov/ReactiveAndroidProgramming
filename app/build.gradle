@@ -74,6 +74,10 @@ dependencies {
     compile 'com.trello.rxlifecycle2:rxlifecycle-android:2.0.1'
     compile 'com.trello.rxlifecycle2:rxlifecycle-components:2.0.1'
 
+    // Twitter4j
+    compile 'org.twitter4j:twitter4j-core:4.0.6'
+    compile 'org.twitter4j:twitter4j-stream:4.0.6'
+
 }
 
 def getCoinApiKey(){

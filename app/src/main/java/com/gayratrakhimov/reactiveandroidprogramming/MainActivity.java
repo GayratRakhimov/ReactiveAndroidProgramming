@@ -21,6 +21,15 @@ import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import twitter4j.FilterQuery;
+import twitter4j.StallWarning;
+import twitter4j.Status;
+import twitter4j.StatusDeletionNotice;
+import twitter4j.StatusListener;
+import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationBuilder;
 
 import static hu.akarnokd.rxjava.interop.RxJavaInterop.toV2Observable;
 
@@ -174,6 +183,53 @@ public class MainActivity extends RxAppCompatActivity {
                     }
                 });
 
+    }
+
+    private void twitter() {
+        StatusListener listener = new StatusListener() {
+            @Override
+            public void onStatus(Status status) {
+                System.out.println(status.getUser().getName() + " : " + status.getText());
+            }
+
+            @Override
+            public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
+            }
+
+            @Override
+            public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
+            }
+
+            @Override
+            public void onScrubGeo(long userId, long upToStatusId) {
+            }
+
+            @Override
+            public void onStallWarning(StallWarning warning) {
+            }
+
+            @Override
+            public void onException(Exception ex) {
+                ex.printStackTrace();
+            }
+        };
+
+        final Configuration configuration = new ConfigurationBuilder()
+                .setDebugEnabled(BuildConfig.DEBUG)
+                .setOAuthConsumerKey("tTlvwBfqduVadKKEwMXDCmzA4")
+                .setOAuthConsumerSecret("FiIOveHm9jLAtf0YSopWROeOFo3OA9VBM2CAuKwZ8AoL1gl4AK")
+                .setOAuthAccessToken("195655474-QY8neLxXxqOsF8PGM8MYLsYGyQxQZA73S4qp0Sc2")
+                .setOAuthAccessTokenSecret("lIiock0OTkR4TflFPb9pSMjLL8pN9JKIYKBhWMWwtxyMa")
+                .build();
+
+        TwitterStream twitterStream = new TwitterStreamFactory(configuration).getInstance();
+        twitterStream.addListener(listener);
+        twitterStream.filter();
+        twitterStream.filter(
+                new FilterQuery()
+                        .track("Yahoo", "Google", "Microsoft")
+                        .language("en")
+        );
     }
 
     private void saveStockUpdate(StockUpdate stockUpdate) {
