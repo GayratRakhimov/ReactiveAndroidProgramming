@@ -16,11 +16,18 @@ public class StockUpdate implements Serializable {
     private final String status;
     private Integer id;
 
-    public StockUpdate(String stockSymbol, BigDecimal price, String time, String status) {
+    public StockUpdate(String stockSymbol, BigDecimal price, String time,
+                       String twitterStatus) {
+        if (stockSymbol == null) {
+            stockSymbol = "";
+        }
+        if (twitterStatus == null) {
+            twitterStatus = "";
+        }
         this.stockSymbol = stockSymbol;
         this.price = price;
         this.time = time;
-        this.status = status;
+        this.status = twitterStatus;
     }
 
     public String getStockSymbol() {
@@ -54,5 +61,11 @@ public class StockUpdate implements Serializable {
         this.id = id;
     }
 
+    public boolean isTwitterStatusUpdate() {
+        return !status.isEmpty();
+    }
 
+    public String getStatus() {
+        return status;
+    }
 }

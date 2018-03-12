@@ -9,7 +9,6 @@ import com.pushtorefresh.storio.sqlite.queries.InsertQuery;
 import com.pushtorefresh.storio.sqlite.queries.UpdateQuery;
 
 public class StockUpdatePutResolver extends DefaultPutResolver<StockUpdate> {
-
     @NonNull
     @Override
     protected InsertQuery mapToInsertQuery(@NonNull StockUpdate object) {
@@ -36,13 +35,17 @@ public class StockUpdatePutResolver extends DefaultPutResolver<StockUpdate> {
         contentValues.put(StockUpdateTable.Columns.ID, entity.getId());
         contentValues.put(StockUpdateTable.Columns.STOCK_SYMBOL, entity.getStockSymbol());
         contentValues.put(StockUpdateTable.Columns.PRICE, getPrice(entity));
-        contentValues.put(StockUpdateTable.Columns.DATE, entity.getTime());
+        contentValues.put(StockUpdateTable.Columns.DATE, getDate(entity));
+        contentValues.put(StockUpdateTable.Columns.TWITTER_STATUS, entity.getStatus());
 
         return contentValues;
+    }
+
+    private String getDate(@NonNull StockUpdate entity) {
+        return entity.getTime();
     }
 
     private long getPrice(@NonNull StockUpdate entity) {
         return entity.getPrice().scaleByPowerOfTen(4).longValue();
     }
-
 }

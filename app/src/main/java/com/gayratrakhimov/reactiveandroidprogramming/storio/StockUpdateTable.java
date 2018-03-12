@@ -9,6 +9,7 @@ public class StockUpdateTable {
         static final String STOCK_SYMBOL = "stock_symbol";
         static final String PRICE = "price";
         static final String DATE = "date";
+        static final String TWITTER_STATUS = "twitter_status";
     }
 
     private StockUpdateTable() {
@@ -18,8 +19,9 @@ public class StockUpdateTable {
         return "CREATE TABLE " + TABLE + "("
                 + Columns.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + Columns.STOCK_SYMBOL + " TEXT NOT NULL, "
-                + Columns.DATE + " TEXT NOT NULL, "
-                + Columns.PRICE + " LONG NOT NULL"
+                + Columns.DATE + " LONG NOT NULL, "
+                + Columns.PRICE + " LONG NOT NULL, "
+                + Columns.TWITTER_STATUS + " TEXT NULL, "
                 + ");";
     }
 
