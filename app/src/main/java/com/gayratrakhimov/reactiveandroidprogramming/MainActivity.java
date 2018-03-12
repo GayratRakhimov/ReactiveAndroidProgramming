@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gayratrakhimov.reactiveandroidprogramming.coinapi.CoinApiService;
 import com.gayratrakhimov.reactiveandroidprogramming.coinapi.CoinApiServiceFactory;
@@ -141,76 +142,17 @@ public class MainActivity extends RxAppCompatActivity {
 //                .doOnError(ErrorHandler.get())
 //                .subscribe(item -> log("subscribe", item), ErrorHandler.get());
 
-        coinApiService.getExchangeRates("USD")
-                .compose(bindToLifecycle())
-                .toObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(ErrorHandler.get())
-                .observeOn(Schedulers.io())
-                .map(ExchangeRatesResult::getRates)
-                .flatMap(Observable::fromIterable)
-                .map(StockUpdate::create)
-                .doOnNext(this::saveStockUpdate)
-                .onExceptionResumeNext(
-                        v2(StorIOFactory.get(this)
-                                .get()
-                                .listOfObjects(StockUpdate.class)
-                                .withQuery(Query.builder()
-                                        .table(StockUpdateTable.TABLE)
-                                        .orderBy("date DESC")
-                                        .limit(50)
-                                        .build())
-                                .prepare()
-                                .asRxObservable())
-                                .take(1)
-                                .flatMap(Observable::fromIterable)
-                )
-                .observeOn(AndroidSchedulers.mainThread()) // OK
-                .subscribe(stockUpdate -> {
-                    Log.d("APP", "New update " + stockUpdate.getStockSymbol());
-                    noDataAvailableView.setVisibility(View.GONE);
-                    stockDataAdapter.add(stockUpdate);
-                }, error -> {
-                    if (stockDataAdapter.getItemCount() == 0) {
-                        noDataAvailableView.setVisibility(View.VISIBLE);
-                    }
-                });
-
-//        final Configuration configuration = new ConfigurationBuilder()
-//                .setDebugEnabled(BuildConfig.DEBUG)
-//                .setOAuthConsumerKey("pWfKxSWn4Dj0dEhbcouFhwMeN")
-//                .setOAuthConsumerSecret("OXlL55fGXc1hqHhjkkHPYTKAY7Emdmf4DjdziGb82Su8cxxnUf")
-//                .setOAuthAccessToken("195655474-BmqYZkQasiqO5fJu5mK08brpdPmSdpogM1Z24nfw")
-//                .setOAuthAccessTokenSecret("En6ouDbYITOMc7r9lMMh0YvZzq2c9yIpY43YYL0cjHp1Q")
-//                .build();
-//
-//        final FilterQuery filterQuery = new FilterQuery()
-//                .track("Yahoo", "Google", "Microsoft")
-//                .language("en");
-
-//        Observable.merge(
-//                coinApiService.getExchangeRates("USD")
-//                        .toObservable()
-//                        .map(r -> r.getRates())
-//                        .flatMap(Observable::fromIterable)
-//                        .map(StockUpdate::create),
-//                observeTwitterStream(configuration, filterQuery)
-//                        .sample(700, TimeUnit.MILLISECONDS)
-//                        .map(StockUpdate::create)
-//        )
+//        coinApiService.getExchangeRates("USD")
 //                .compose(bindToLifecycle())
+//                .toObservable()
 //                .subscribeOn(Schedulers.io())
-//                .doOnError(ErrorHandler.get())
 //                .observeOn(AndroidSchedulers.mainThread())
-//                .doOnError(error -> {
-//                    Toast.makeText(this, "We couldn't reach internet - falling back to local data",
-//                            Toast.LENGTH_SHORT)
-//                            .show();
-//                })
-//                .observeOn(Schedulers.io())
-//                .doOnNext(this::saveStockUpdate)
 //                .doOnError(ErrorHandler.get())
+//                .observeOn(Schedulers.io())
+//                .map(ExchangeRatesResult::getRates)
+//                .flatMap(Observable::fromIterable)
+//                .map(StockUpdate::create)
+//                .doOnNext(this::saveStockUpdate)
 //                .onExceptionResumeNext(
 //                        v2(StorIOFactory.get(this)
 //                                .get()
@@ -225,18 +167,77 @@ public class MainActivity extends RxAppCompatActivity {
 //                                .take(1)
 //                                .flatMap(Observable::fromIterable)
 //                )
-//                .observeOn(AndroidSchedulers.mainThread())
+//                .observeOn(AndroidSchedulers.mainThread()) // OK
 //                .subscribe(stockUpdate -> {
 //                    Log.d("APP", "New update " + stockUpdate.getStockSymbol());
 //                    noDataAvailableView.setVisibility(View.GONE);
 //                    stockDataAdapter.add(stockUpdate);
-//                    recyclerView.smoothScrollToPosition(0);
 //                }, error -> {
-//                    Log.e("APP", "Error", error);
 //                    if (stockDataAdapter.getItemCount() == 0) {
 //                        noDataAvailableView.setVisibility(View.VISIBLE);
 //                    }
 //                });
+
+
+        final Configuration configuration = new ConfigurationBuilder()
+                .setDebugEnabled(BuildConfig.DEBUG)
+                .setOAuthConsumerKey("pWfKxSWn4Dj0dEhbcouFhwMeN")
+                .setOAuthConsumerSecret("OXlL55fGXc1hqHhjkkHPYTKAY7Emdmf4DjdziGb82Su8cxxnUf")
+                .setOAuthAccessToken("195655474-BmqYZkQasiqO5fJu5mK08brpdPmSdpogM1Z24nfw")
+                .setOAuthAccessTokenSecret("En6ouDbYITOMc7r9lMMh0YvZzq2c9yIpY43YYL0cjHp1Q")
+                .build();
+
+        final FilterQuery filterQuery = new FilterQuery()
+                .track("Yahoo", "Google", "Microsoft")
+                .language("en");
+
+        Observable.merge(
+                coinApiService.getExchangeRates("USD")
+                        .toObservable()
+                        .map(ExchangeRatesResult::getRates)
+                        .flatMap(Observable::fromIterable)
+                        .map(StockUpdate::create),
+                observeTwitterStream(configuration, filterQuery)
+                        .map(StockUpdate::create)
+        )
+                .compose(bindToLifecycle())
+                .subscribeOn(Schedulers.io())
+                .doOnError(ErrorHandler.get())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(error -> {
+                    Toast.makeText(this, "We couldn't reach internet - falling back to local data",
+                            Toast.LENGTH_SHORT)
+                            .show();
+                })
+                .observeOn(Schedulers.io())
+                .doOnNext(this::saveStockUpdate)
+                .doOnError(ErrorHandler.get())
+                .onExceptionResumeNext(
+                        v2(StorIOFactory.get(this)
+                                .get()
+                                .listOfObjects(StockUpdate.class)
+                                .withQuery(Query.builder()
+                                        .table(StockUpdateTable.TABLE)
+                                        .orderBy("date DESC")
+                                        .limit(50)
+                                        .build())
+                                .prepare()
+                                .asRxObservable())
+                                .take(1)
+                                .flatMap(Observable::fromIterable)
+                )
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(stockUpdate -> {
+                    Log.d("APP", "New update " + stockUpdate.getStockSymbol());
+                    noDataAvailableView.setVisibility(View.GONE);
+                    stockDataAdapter.add(stockUpdate);
+                    recyclerView.smoothScrollToPosition(0);
+                }, error -> {
+                    Log.e("APP", "Error", error);
+                    if (stockDataAdapter.getItemCount() == 0) {
+                        noDataAvailableView.setVisibility(View.VISIBLE);
+                    }
+                });
 
     }
 
@@ -279,53 +280,6 @@ public class MainActivity extends RxAppCompatActivity {
             twitterStream.addListener(listener);
             twitterStream.filter(filterQuery);
         });
-    }
-
-    private void twitter() {
-        StatusListener listener = new StatusListener() {
-            @Override
-            public void onStatus(Status status) {
-                System.out.println(status.getUser().getName() + " : " + status.getText());
-            }
-
-            @Override
-            public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-            }
-
-            @Override
-            public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
-            }
-
-            @Override
-            public void onScrubGeo(long userId, long upToStatusId) {
-            }
-
-            @Override
-            public void onStallWarning(StallWarning warning) {
-            }
-
-            @Override
-            public void onException(Exception ex) {
-                ex.printStackTrace();
-            }
-        };
-
-        final Configuration configuration = new ConfigurationBuilder()
-                .setDebugEnabled(BuildConfig.DEBUG)
-                .setOAuthConsumerKey("tTlvwBfqduVadKKEwMXDCmzA4")
-                .setOAuthConsumerSecret("FiIOveHm9jLAtf0YSopWROeOFo3OA9VBM2CAuKwZ8AoL1gl4AK")
-                .setOAuthAccessToken("195655474-QY8neLxXxqOsF8PGM8MYLsYGyQxQZA73S4qp0Sc2")
-                .setOAuthAccessTokenSecret("lIiock0OTkR4TflFPb9pSMjLL8pN9JKIYKBhWMWwtxyMa")
-                .build();
-
-        TwitterStream twitterStream = new TwitterStreamFactory(configuration).getInstance();
-        twitterStream.addListener(listener);
-        twitterStream.filter();
-        twitterStream.filter(
-                new FilterQuery()
-                        .track("Yahoo", "Google", "Microsoft")
-                        .language("en")
-        );
     }
 
     private void saveStockUpdate(StockUpdate stockUpdate) {
