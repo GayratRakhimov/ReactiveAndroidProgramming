@@ -16,6 +16,8 @@ import com.gayratrakhimov.reactiveandroidprogramming.storio.StorIOFactory;
 import com.pushtorefresh.storio.sqlite.queries.Query;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
@@ -188,7 +190,7 @@ public class MainActivity extends RxAppCompatActivity {
                 .build();
 
         final FilterQuery filterQuery = new FilterQuery()
-                .track("Yahoo", "Google", "Microsoft")
+                .track("BTC","BTH")
                 .language("en");
 
         Observable.merge(
@@ -198,6 +200,7 @@ public class MainActivity extends RxAppCompatActivity {
                         .flatMap(Observable::fromIterable)
                         .map(StockUpdate::create),
                 observeTwitterStream(configuration, filterQuery)
+                        .sample(5000, TimeUnit.MILLISECONDS)
                         .map(StockUpdate::create)
         )
                 .compose(bindToLifecycle())

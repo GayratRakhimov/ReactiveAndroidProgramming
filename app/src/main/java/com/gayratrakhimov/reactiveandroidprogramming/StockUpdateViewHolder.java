@@ -22,6 +22,9 @@ public class StockUpdateViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.stock_item_price)
     TextView price;
 
+    @BindView(R.id.stock_item_twitter_status)
+    TextView twitterStatus;
+
     public StockUpdateViewHolder(View v) {
         super(v);
         ButterKnife.bind(this, v);
@@ -39,6 +42,22 @@ public class StockUpdateViewHolder extends RecyclerView.ViewHolder {
 
     public void setDate(String date) {
         this.date.setText(date);
+    }
+
+    public void setTwitterStatus(String twitterStatus) {
+        this.twitterStatus.setText(twitterStatus);
+    }
+
+    public void setIsStatusUpdate(boolean twitterStatusUpdate) {
+        if (twitterStatusUpdate) {
+            this.twitterStatus.setVisibility(View.VISIBLE);
+            this.price.setVisibility(View.GONE);
+            this.stockSymbol.setVisibility(View.GONE);
+        } else {
+            this.twitterStatus.setVisibility(View.GONE);
+            this.price.setVisibility(View.VISIBLE);
+            this.stockSymbol.setVisibility(View.VISIBLE);
+        }
     }
 
 }
