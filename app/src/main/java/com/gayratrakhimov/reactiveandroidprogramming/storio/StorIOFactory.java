@@ -6,6 +6,11 @@ import com.gayratrakhimov.reactiveandroidprogramming.StockUpdate;
 import com.pushtorefresh.storio.sqlite.SQLiteTypeMapping;
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.pushtorefresh.storio.sqlite.impl.DefaultStorIOSQLite;
+import com.pushtorefresh.storio.sqlite.queries.Query;
+
+import io.reactivex.Observable;
+
+import static hu.akarnokd.rxjava.interop.RxJavaInterop.toV2Observable;
 
 public class StorIOFactory {
 
@@ -27,6 +32,25 @@ public class StorIOFactory {
                 .build();
 
         return INSTANCE;
+    }
+
+    public static Observable<StockUpdate> createLocalDbStockUpdateRetrievalObservable(Context context) {
+        return v2(StorIOFactory.get(context)
+                .get()
+                .listOfObjects(StockUpdate.class)
+                .withQuery(Query.builder()
+                        .table(StockUpdateTable.TABLE)
+                        .orderBy("date DESC")
+                        .limit(50)
+                        .build())
+                .prepare()
+                .asRxObservable())
+                .take(1)
+                .flatMap(Observable::fromIterable);
+    }
+
+    private static <T> Observable<T> v2(rx.Observable<T> source) {
+        return toV2Observable(source);
     }
 
 }

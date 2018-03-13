@@ -27,7 +27,7 @@ public class StockDataAdapter extends RecyclerView.Adapter<StockUpdateViewHolder
         holder.setStockSymbol(stockUpdate.getStockSymbol());
         holder.setPrice(stockUpdate.getPrice());
         holder.setDate(stockUpdate.getTime());
-        holder.setTwitterStatus(stockUpdate.getStatus());
+        holder.setTwitterStatus(stockUpdate.getTwitterStatus());
         holder.setIsStatusUpdate(stockUpdate.isTwitterStatusUpdate());
     }
 
@@ -47,8 +47,8 @@ public class StockDataAdapter extends RecyclerView.Adapter<StockUpdateViewHolder
                     .equals(newStockUpdate.getStockSymbol())) {
                 if (stockUpdate.getPrice()
                         .equals(newStockUpdate.getPrice())
-                        && stockUpdate.getStatus()
-                        .equals(newStockUpdate.getStatus())) {
+                        && stockUpdate.getTwitterStatus()
+                        .equals(newStockUpdate.getTwitterStatus())) {
                     return true;
                 }
                 break; }

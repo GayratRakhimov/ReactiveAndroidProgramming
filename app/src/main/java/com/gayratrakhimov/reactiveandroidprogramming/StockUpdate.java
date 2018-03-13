@@ -13,7 +13,7 @@ public class StockUpdate implements Serializable {
     private final String stockSymbol;
     private final BigDecimal price;
     private final String time;
-    private final String status;
+    private final String twitterStatus;
     private Integer id;
 
     public StockUpdate(String stockSymbol, BigDecimal price, String time,
@@ -27,7 +27,7 @@ public class StockUpdate implements Serializable {
         this.stockSymbol = stockSymbol;
         this.price = price;
         this.time = time;
-        this.status = twitterStatus;
+        this.twitterStatus = twitterStatus;
     }
 
     public String getStockSymbol() {
@@ -62,11 +62,11 @@ public class StockUpdate implements Serializable {
     }
 
     public boolean isTwitterStatusUpdate() {
-        return !status.isEmpty();
+        return !twitterStatus.isEmpty();
     }
 
-    public String getStatus() {
-        return status;
+    public String getTwitterStatus() {
+        return twitterStatus;
     }
 
     @Override
@@ -80,7 +80,8 @@ public class StockUpdate implements Serializable {
             return false;
         if (price != null ? !price.equals(that.price) : that.price != null) return false;
         if (time != null ? !time.equals(that.time) : that.time != null) return false;
-        if (status != null ? !status.equals(that.status) : that.status != null) return false;
+        if (twitterStatus != null ? !twitterStatus.equals(that.twitterStatus) : that.twitterStatus != null)
+            return false;
         return id != null ? id.equals(that.id) : that.id == null;
     }
 
@@ -89,7 +90,7 @@ public class StockUpdate implements Serializable {
         int result = stockSymbol != null ? stockSymbol.hashCode() : 0;
         result = 31 * result + (price != null ? price.hashCode() : 0);
         result = 31 * result + (time != null ? time.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (twitterStatus != null ? twitterStatus.hashCode() : 0);
         result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
