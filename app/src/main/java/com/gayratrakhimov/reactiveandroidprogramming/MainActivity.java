@@ -1,6 +1,7 @@
 package com.gayratrakhimov.reactiveandroidprogramming;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,8 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import twitter4j.FilterQuery;
 import twitter4j.StallWarning;
@@ -204,21 +207,13 @@ public class MainActivity extends RxAppCompatActivity {
                 observeTwitterStream(configuration, filterQuery)
                         .sample(5000, TimeUnit.MILLISECONDS)
                         .map(StockUpdate::create)
-                        .flatMapMaybe(update -> Observable.fromArray(trackingKeywords)
-                                .filter(keyword -> update.getStatus().toLowerCase().contains(keyword.toLowerCase()))
-                                .map(keyword -> update)
-                                .firstElement()
-                        )
+                        .flatMapMaybe(skipTweetsThatDoNotContainKeywords(trackingKeywords))
         )
                 .compose(bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .doOnError(ErrorHandler.get())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> {
-                    Toast.makeText(this, "We couldn't reach internet - falling back to local data",
-                            Toast.LENGTH_SHORT)
-                            .show();
-                })
+                .doOnError(this::showToastErrorNotification)
                 .observeOn(Schedulers.io())
                 .doOnNext(this::saveStockUpdate)
                 .doOnError(ErrorHandler.get())
@@ -250,6 +245,22 @@ public class MainActivity extends RxAppCompatActivity {
                     }
                 });
 
+    }
+
+    @NonNull
+    private void showToastErrorNotification(Throwable error) {
+            Toast.makeText(this, "We couldn't reach internet - falling back to local data",
+                    Toast.LENGTH_SHORT)
+                    .show();
+
+    }
+
+    @NonNull
+    private Function<StockUpdate, MaybeSource<? extends StockUpdate>> skipTweetsThatDoNotContainKeywords(String[] trackingKeywords) {
+        return update -> Observable.fromArray(trackingKeywords)
+                .filter(keyword -> update.getStatus().toLowerCase().contains(keyword.toLowerCase()))
+                .map(keyword -> update)
+                .firstElement();
     }
 
     Observable<Status> observeTwitterStream(Configuration configuration, FilterQuery filterQuery) {
