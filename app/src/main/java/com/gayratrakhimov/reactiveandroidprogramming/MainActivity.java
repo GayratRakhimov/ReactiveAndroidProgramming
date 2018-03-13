@@ -193,6 +193,8 @@ public class MainActivity extends RxAppCompatActivity {
                 .track("BTC","BTH")
                 .language("en");
 
+        final String[] trackingKeywords = {"Yahoo", "Google", "Microsoft"};
+
         Observable.merge(
                 coinApiService.getExchangeRates("USD")
                         .toObservable()
@@ -202,6 +204,11 @@ public class MainActivity extends RxAppCompatActivity {
                 observeTwitterStream(configuration, filterQuery)
                         .sample(5000, TimeUnit.MILLISECONDS)
                         .map(StockUpdate::create)
+                        .flatMapMaybe(update -> Observable.fromArray(trackingKeywords)
+                                .filter(keyword -> update.getStatus().toLowerCase().contains(keyword.toLowerCase()))
+                                .map(keyword -> update)
+                                .firstElement()
+                        )
         )
                 .compose(bindToLifecycle())
                 .subscribeOn(Schedulers.io())
@@ -230,6 +237,7 @@ public class MainActivity extends RxAppCompatActivity {
                                 .flatMap(Observable::fromIterable)
                 )
                 .observeOn(AndroidSchedulers.mainThread())
+                .filter(update -> !stockDataAdapter.contains(update))
                 .subscribe(stockUpdate -> {
                     Log.d("APP", "New update " + stockUpdate.getStockSymbol());
                     noDataAvailableView.setVisibility(View.GONE);
